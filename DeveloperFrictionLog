@@ -1,0 +1,23 @@
+Friction Log Entry: Local Webhook Ingestion & Handshake Verification
+
+1. Specific Task Attempted:
+Connecting a local development server (localhost:3000) to the Amazon Ring Developer Playground to receive and process real-time simulated webhook event payloads.
+
+2. Steps Taken:
+- Set up an endpoint route (/api/webhooks/ring) in our application to listen for inbound POST requests.
+- Attempted to enter http://localhost:3000/api/webhooks/ring into the playground webhook callback settings.
+- When localhost was rejected due to HTTPS requirements, launched an ngrok tunnel (https://<subdomain>.ngrok-free.app) and pointed the playground to the secure URL.
+- Fired simulated device.motion_detected and package.detected triggers from the sandbox.
+
+3. Expected vs. Actual Result:
+- Expected: The sandbox dispatcher delivers the sample JSON payload to the endpoint with standard HMAC verification headers and provides visibility into the HTTP status code returned by the local server.
+- Actual: The sandbox returned generic delivery failures ("502 / Delivery Failed") due to strict SSL handshake constraints and sandbox rate limits, without exposing the raw response body or detailed error codes to aid debugging.
+
+4. Severity Rating:
+Medium (slows onboarding and forces developers to spend time troubleshooting network configurations instead of building core features).
+
+5. Workaround Used:
+Built an internal client-side mock event dispatcher and JSON replay drawer inside the application that adheres directly to the Ring API specification, allowing offline and local testing without relying on external network dispatchers.
+
+6. Actionable Suggestion:
+Provide an official, zero-configuration local simulator bridge (like Stripe CLI's "stripe listen --forward-to" or AWS SAM local) that streams simulated Ring events directly to localhost without requiring public URLs or external tunneling.
